@@ -3,6 +3,7 @@ package com.hilbing.news.presentation.di
 import com.hilbing.news.domain.repository.NewsRepository
 import com.hilbing.news.domain.usecase.GetNewsHeadlinesUseCase
 import com.hilbing.news.domain.usecase.GetSearchedNewsUseCase
+import com.hilbing.news.domain.usecase.SaveNewsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,6 +28,14 @@ class UseCaseModule{
         newsRepository: NewsRepository
     ): GetSearchedNewsUseCase {
         return GetSearchedNewsUseCase(newsRepository)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSavedNewsUseCase(
+        newsRepository: NewsRepository
+    ): SaveNewsUseCase {
+        return SaveNewsUseCase(newsRepository)
     }
 
 }
