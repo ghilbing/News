@@ -12,13 +12,16 @@ import androidx.lifecycle.viewModelScope
 import com.hilbing.news.data.model.APIResponse
 import com.hilbing.news.data.util.Resource
 import com.hilbing.news.domain.usecase.GetNewsHeadlinesUseCase
+import com.hilbing.news.domain.usecase.GetSearchedNewsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
 class NewsViewModel(
     private val app: Application,
-    val getNewsHeadlinesUseCase: GetNewsHeadlinesUseCase
+    val getNewsHeadlinesUseCase: GetNewsHeadlinesUseCase,
+    val getSearchedNewsUseCase: GetSearchedNewsUseCase
+
 ): AndroidViewModel(app) {
     val newsHeadlines: MutableLiveData<Resource<APIResponse>> = MutableLiveData()
 
@@ -61,5 +64,27 @@ class NewsViewModel(
             }
         }
         return false
+    }
+
+    //search
+    val searchedNews : MutableLiveData<Resource<APIResponse>> = MutableLiveData()
+    fun searchedNews(
+        country: String,
+        searchQuery: String,
+        page: Int
+    ) = viewModelScope.launch {
+        searchedNews.postValue(Resource.Loading())
+        try {
+            if (isNetworkAvailable(app)) {
+                val response = getSearchedNewsUseCase.execute(
+                    country, searchQuery, page
+                )
+                searchedNews.postValue(response)
+            } else {
+                searchedNews.postValue(Resource.Error("No internet connection"))
+            }
+        }catch (e:Exception){
+            searchedNews.postValue(Resource.Error(e.message.toString()))
+        }
     }
 }

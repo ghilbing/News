@@ -40,8 +40,8 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.NewsViewHolder>(){
 
 
 
-    inner class NewsViewHolder(val binding: NewsListItemBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(article: Article){
+    inner class NewsViewHolder(val binding: NewsListItemBinding): RecyclerView.ViewHolder(binding.root) {
+        fun bind(article: Article) {
             binding.tvTitle.text = article.title
             binding.tvDescription.text = article.description
             binding.tvPublishedAt.text = article.publishedAt
@@ -49,8 +49,18 @@ class NewsAdapter : RecyclerView.Adapter<NewsAdapter.NewsViewHolder>(){
             Glide.with(binding.ivArticleImage.context)
                 .load(article.urlToImage)
                 .into(binding.ivArticleImage)
+            binding.root.setOnClickListener {
+                onItemClickListener?.let {
+                    it(article)
+                }
+            }
         }
     }
 
-
+        private var onItemClickListener : ((Article)-> Unit)?=null
+        fun setOnItemClickListener(listener : (Article)->Unit){
+            onItemClickListener = listener
+        }
 }
+
+

@@ -2,6 +2,7 @@ package com.hilbing.news.presentation.di
 
 import android.app.Application
 import com.hilbing.news.domain.usecase.GetNewsHeadlinesUseCase
+import com.hilbing.news.domain.usecase.GetSearchedNewsUseCase
 import com.hilbing.news.presentation.viewmodel.NewsViewModelFactory
 import dagger.Module
 import dagger.Provides
@@ -17,8 +18,9 @@ class FactoryModule {
     @Provides
     fun provideNewsViewModelFactory(
         application: Application,
-        getNewsHeadlinesUseCase: GetNewsHeadlinesUseCase
+        getNewsHeadlinesUseCase: GetNewsHeadlinesUseCase,
+        getSearchedNewsUseCase: GetSearchedNewsUseCase
     ): NewsViewModelFactory{
-        return NewsViewModelFactory(application, getNewsHeadlinesUseCase)
+        return NewsViewModelFactory(application, getNewsHeadlinesUseCase, getSearchedNewsUseCase)
     }
 }

@@ -8,6 +8,11 @@
     tools:context=".presentation.NewsFragment">
 
 
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/svNews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNews"
         android:layout_width="match_parent"

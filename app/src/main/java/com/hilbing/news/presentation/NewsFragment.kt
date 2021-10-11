@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hilbing.news.R
@@ -14,6 +16,9 @@ import com.hilbing.news.data.util.Resource
 import com.hilbing.news.databinding.FragmentNewsBinding
 import com.hilbing.news.presentation.adapter.NewsAdapter
 import com.hilbing.news.presentation.viewmodel.NewsViewModel
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class NewsFragment : Fragment() {
 
@@ -40,8 +45,15 @@ class NewsFragment : Fragment() {
         binding = FragmentNewsBinding.bind(view)
         viewModel = (activity as MainActivity).viewModel
         newsAdapter = (activity as MainActivity).newsAdapter
+        newsAdapter.setOnItemClickListener{
+            val bundle = Bundle().apply {
+                putSerializable("selected_article", it)
+            }
+            findNavController().navigate(R.id.action_newsFragment_to_infoFragment,bundle)
+        }
         initRecyclerView()
         viewNewsList()
+        setSearchView()
     }
 
     private fun viewNewsList() {
@@ -117,6 +129,66 @@ class NewsFragment : Fragment() {
                 isScrolling = false
             }
         }
+    }
+
+    // search
+    private fun setSearchView(){
+        binding.svNews.setOnQueryTextListener(
+            object: SearchView.OnQueryTextListener{
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    viewModel.searchedNews(country, newText.toString(), page)
+                    viewSearchedNews()
+                    return false
+                }
+
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    MainScope().launch {
+                        delay(2000)
+                        viewModel.searchedNews(country, query.toString(), page)
+                        viewSearchedNews()
+                    }
+
+                    return false
+                }
+        })
+        binding.svNews.setOnCloseListener (object : SearchView.OnCloseListener{
+            override fun onClose(): Boolean {
+                initRecyclerView()
+                viewNewsList()
+                return false
+            }
+        })
+    }
+    fun viewSearchedNews(){
+
+        viewModel.searchedNews.observe(viewLifecycleOwner, {
+                response->
+            when(response){
+                is Resource.Success->{
+                    hideProgressBar()
+                    response.data?.let{
+                        newsAdapter.differ.submitList(it.articles.toList())
+                        if(it.totalResults%20 == 0){
+                            pages = it.totalResults/20
+                        } else{
+                            pages = it.totalResults/20+1
+                        }
+                        isLastPage = page == pages
+
+                    }
+                }
+                is Resource.Error->{
+                    hideProgressBar()
+                    response.message?.let{
+                        Toast.makeText(activity, "An error ocurred: $it", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is Resource.Loading->{
+                    showProgressBar()
+                }
+
+            }
+        })
     }
 
 

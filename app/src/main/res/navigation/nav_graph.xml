@@ -25,7 +25,11 @@
     </fragment>
     <fragment
         android:id="@+id/infoFragment"
-        android:name="com.hilbing.news.InfoFragment"
+        android:name="com.hilbing.news.presentation.InfoFragment"
         android:label="fragment_info"
-        tools:layout="@layout/fragment_info" />
+        tools:layout="@layout/fragment_info" >
+        <argument
+            android:name="selected_article"
+            app:argType="com.hilbing.news.data.model.Article" />
+    </fragment>
 </navigation>
